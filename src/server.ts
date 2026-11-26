@@ -1,9 +1,9 @@
 import app from "./app";
-const port = 8000;
+import config from "./config";
 
 const main = async () => {
-    app.listen(port, () => {
-        console.log(`example app listening on port ${port}`)
+    app.listen(config.port, () => {
+        console.log(`example app listening on port ${config.port}`)
     })
 }
 
