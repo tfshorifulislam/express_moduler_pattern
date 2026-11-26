@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { userService } from "./user.service";
+import { Result } from "pg";
+import { error } from "node:console";
 
 // create user into db;
 const createUser = async (req: Request, res: Response) => {
@@ -20,6 +22,27 @@ const createUser = async (req: Request, res: Response) => {
         })
     }
 }
+
+// get all user from db;
+const getAllUsers = async (req: Request, res: Response) => {
+    try {
+        const result = await userService.getAllUsers();
+        console.log(result);
+        res.status(200).json({
+            success: true,
+            message: "all users fetch successfully done!!",
+            data: result.rows
+        })
+    } catch (error: any) {
+        console.error('get all user error!', error)
+        res.status(500).json({
+            suscess: false,
+            message: "error getting user info into db!!",
+            error: error.message
+        })
+    }
+}
+
 
 // update user info from db;
 const userUpdateIntoDB = async (req:Request, res: Response) => {
@@ -81,7 +104,8 @@ const userDelete = async (req: Request, res: Response) => {
 
 export const userController = {
     createUser,
-    userDelete,
+    getAllUsers,
     userUpdateIntoDB,
+    userDelete,
 
 }

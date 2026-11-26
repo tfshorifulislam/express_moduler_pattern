@@ -17,6 +17,14 @@ const createUserIntoDB = async (payload: Iuser) => {
     return result;
 };
 
+// get all user from db;
+const getAllUsers = async () => {
+    const result = await pool.query(`
+        SELECT * FROM users
+        `);
+    return result;
+}
+
 // user update into db;
 const userUpdateIntoDB = async (payload: any, id: string) => {
     console.log(payload)
@@ -52,5 +60,6 @@ const deleteUserFromDB = async (id: string) => {
 export const userService = {
     createUserIntoDB,
     deleteUserFromDB,
-    userUpdateIntoDB
+    userUpdateIntoDB,
+    getAllUsers,
 }
