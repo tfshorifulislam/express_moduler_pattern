@@ -16,13 +16,14 @@ const createUserIntoDB = async (payload: any) => {
         return result;
 };
 
+// user delete into DB
 const deleteUserFromDB = async (id: string) => {
     const result = await pool.query(`
         DELETE FROM users
         WHERE id = $1
         RETURNING *
         `,[id])
-        
+
     return result;
 }
 
