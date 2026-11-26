@@ -5,7 +5,7 @@ import { initDB } from "./db";
 const main = async () => {
     initDB();
     app.listen(config.port, () => {
-        console.log(`example app listening on port ${config.port}`)
+        console.log(`app listening on port ${config.port}`)
     })
 }
 
