@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
 import { userService } from "./user.service";
-import { Result } from "pg";
-import { error } from "node:console";
 
 // create user into db;
 const createUser = async (req: Request, res: Response) => {
@@ -27,7 +25,14 @@ const createUser = async (req: Request, res: Response) => {
 const getAllUsers = async (req: Request, res: Response) => {
     try {
         const result = await userService.getAllUsers();
-        console.log(result);
+   
+        if(result.rowCount === 0) {
+        res.status(404).json({
+            suscess: false,
+            message:"no user found!!",
+        })
+     }
+
         res.status(200).json({
             success: true,
             message: "all users fetch successfully done!!",
@@ -43,6 +48,34 @@ const getAllUsers = async (req: Request, res: Response) => {
     }
 }
 
+const getSingleUser = async (req: Request, res: Response) => {
+   try {
+     const {id} = req.params;
+     const result = await userService.getSingleUser(id as string);
+
+     if(result.rowCount === 0) {
+        res.status(404).json({
+            suscess: false,
+            message:"no user found!!",
+        })
+     };
+
+     res.status(200).json({
+            success: true,
+            message: "all users fetch successfully done!!",
+            data: result.rows
+        });
+        
+   } catch (error: any) {
+        console.error('get user error!', error)
+        res.status(500).json({
+            suscess: false,
+            message: "error getting user info into db!!",
+            error: error.message
+        })
+    }
+
+}
 
 // update user info from db;
 const userUpdateIntoDB = async (req:Request, res: Response) => {
@@ -107,5 +140,5 @@ export const userController = {
     getAllUsers,
     userUpdateIntoDB,
     userDelete,
-
+    getSingleUser
 }

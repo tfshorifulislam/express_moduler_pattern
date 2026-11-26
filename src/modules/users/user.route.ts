@@ -11,7 +11,10 @@ router.post('/', userController.createUser)
 router.put('/:id', userController.userUpdateIntoDB )
 
 // get all user from db;
-router.get('/', userController.getAllUsers)
+router.get('/', userController.getAllUsers);
+
+// get single user;
+router.get('/:id', userController.getSingleUser)
 
 // user delete;
 router.delete('/:id', userController.userDelete )
