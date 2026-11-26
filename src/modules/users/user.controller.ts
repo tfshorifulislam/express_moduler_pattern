@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { userService } from "./user.service";
 
-
+// create user into db;
 const createUser = async (req: Request, res: Response) => {
     try {
         console.log(req.body);
@@ -21,7 +21,36 @@ const createUser = async (req: Request, res: Response) => {
     }
 }
 
+// update user info from db;
+const userUpdateIntoDB = async (req:Request, res: Response) => {
+    try {
+        const {id} = req.params;
+        const result = await userService.userUpdateIntoDB(req.body, id as string)
+        console.log(result);
+        if (result.rowCount === 0) {
+            res.status(404).json({
+                success: false,
+                message: "not found user into DB!!"
+            })
+        }
 
+        res.status(200).json({
+            suscess: true,
+            message: 'user update successfull!',
+            data: result.rows[0]
+        });
+    }catch (error: any) {
+        console.error('user delete error!', error)
+        res.status(500).json({
+            suscess: false,
+            message: "error updating user info into db!!",
+            error: error.message
+        })
+    }
+}
+
+
+// delete user from db;
 const userDelete = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
@@ -53,5 +82,6 @@ const userDelete = async (req: Request, res: Response) => {
 export const userController = {
     createUser,
     userDelete,
+    userUpdateIntoDB,
 
 }
