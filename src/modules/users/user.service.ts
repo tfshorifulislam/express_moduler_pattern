@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { pool } from "../../db"
-import { Iuser } from "./user.interface";
+import { Iuser, userUpdatePayload } from "./user.interface";
 
 // create user into db
 const createUserIntoDB = async (payload: Iuser) => {
@@ -35,7 +35,7 @@ const getSingleUser = async (id: string) => {
 };
 
 // user update into db;
-const userUpdateIntoDB = async (payload: any, id: string) => {
+const userUpdateIntoDB = async (payload: userUpdatePayload, id: string) => {
     console.log(payload)
     const { name,email, password, age, is_Active } = payload;
     const hashPassword = password ? await bcrypt.hash(password, 10) : null;

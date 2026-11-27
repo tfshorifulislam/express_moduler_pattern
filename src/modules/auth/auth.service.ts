@@ -2,9 +2,10 @@ import bcrypt from "bcryptjs";
 import { pool } from "../../db";
 import jwt from "jsonwebtoken";
 import config from "../../config";
+import { loginInfo } from "./auth.interface";
 
 
-const loginIntoApplication = async (payload: any) => {
+const loginIntoApplication = async (payload : loginInfo) => {
     const {email, password} = payload;
 
     const user = await pool.query(`
