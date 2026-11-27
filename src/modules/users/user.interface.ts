@@ -3,6 +3,7 @@ export interface Iuser {
     email: string;
     password: string;
     age: number | null;
+    role?: string
 }
 
 export interface userUpdatePayload {
