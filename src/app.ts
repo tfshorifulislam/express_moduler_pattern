@@ -3,20 +3,11 @@ import { userRoute } from "./modules/users/user.route";
 import { profileRouter } from "./modules/profile/profile.route";
 import { authRouter } from "./modules/auth/auth.route";
 import fs from "fs";
+import logger from "./middleware/logger";
 
 const app: Application = express();
 app.use(express.json());
-
-// logger.txt file for monatoring;
-app.use((req: Request, res: Response, next: NextFunction) => {
-    const log = `\nMethod: ${req.method} | URL: ${req.url} | Time: ${Date.now()}\n`;
-
-    fs.appendFile('logger.txt', log, (err) => {
-        console.log(err);
-    });
-
-    next();
-})
+app.use(logger)
 
 // home route;
 app.get('/', (req: Request, res: Response) => {
