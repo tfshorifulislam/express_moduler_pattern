@@ -1,8 +1,7 @@
-import { Request, Response } from "express";
-import { authService } from "./auth.service";
+import type { Request, Response } from "express";
+import { authService } from "./auth.service.js";
 
-
-const loginIntoApplication = async ( req: Request, res: Response) => {
+const loginIntoApplication = async (req: Request, res: Response): Promise<void> => {
     try {
         const result = await authService.loginIntoApplication(req.body);
         console.log(result);
@@ -10,17 +9,18 @@ const loginIntoApplication = async ( req: Request, res: Response) => {
             success: true,
             message: "login successfull !!",
             data: result
-        })
-    } catch (error: any) {
-        console.error('login error form loginIntoApplication!!', error)
+        });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Unknown error";
+        console.error("login error form loginIntoApplication!!", error);
         res.status(500).json({
-            suscess: false,
+            success: false,
             message: "login failed!!",
-            error: error.message
-        })
+            error: message
+        });
     }
-}
+};
 
 export const authController = {
     loginIntoApplication,
-}
+};

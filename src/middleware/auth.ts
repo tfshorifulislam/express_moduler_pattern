@@ -1,64 +1,107 @@
-import { NextFunction, Request, Response } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import config from "../config";
-import { pool } from "../db";
-import { Role } from "../types";
+import type { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import config from "../config/index.js";
+import { pool } from "../db/index.js";
+import { isRole, type Role } from "../types/index.js";
+
+interface AuthDbUser {
+    id: number;
+    name: string | null;
+    email: string;
+    role: string;
+    is_active: boolean;
+}
 
 const auth = (...roles: Role[]) => {
-    return async (req: Request, res: Response, next: NextFunction) => {
-
+    return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            // check is is exist;
-            const token = req.headers.authorization;
+            const authHeader = req.headers.authorization;
+
+            if (!authHeader) {
+                res.status(401).json({
+                    success: false,
+                    message: "Unauthorized access !!"
+                });
+                return;
+            }
+
+            const token = authHeader.startsWith("Bearer ")
+                ? authHeader.slice(7).trim()
+                : authHeader.trim();
 
             if (!token) {
                 res.status(401).json({
                     success: false,
                     message: "Unauthorized access !!"
-                })
-            };
+                });
+                return;
+            }
 
-            // check jwt token is valid;
-            const verifyToken = jwt.verify(token as string, config.jwt_private_key as string) as JwtPayload;
-
-            //  check user have db;
-            const user = await pool.query(`
-        SELECT * FROM users
-        WHERE email = $1;
-        `, [verifyToken.email]);
-            delete user.rows[0].password;
-
-            if (user.rowCount === 0) {
-             return   res.status(404).json({
+            if (!config.jwt_private_key) {
+                res.status(500).json({
                     success: false,
-                    message: "user not found!!"
-                })
-            };
+                    message: "JWT private key is not configured"
+                });
+                return;
+            }
 
-            //  check user is_active or not;
-            if (!user.rows[0].is_active) {
-              return  res.status(403).json({
-                    success: false,
-                    message: "Forbidden!!"
-                })
-            };
+            const decoded = jwt.verify(token, config.jwt_private_key);
 
-            // roles check logic
-            if (roles.length &&
-                !roles.includes(user.rows[0].role)
-            ) {
-             return   res.status(401).json({
+            if (typeof decoded === "string" || typeof decoded.email !== "string") {
+                res.status(401).json({
                     success: false,
                     message: "Unauthorized access !!"
-                })
-            };
+                });
+                return;
+            }
 
-            req.user = verifyToken;
+            const userResult = await pool.query<AuthDbUser>(
+                `
+                SELECT id, name, email, role, is_active FROM users
+                WHERE email = $1;
+                `,
+                [decoded.email]
+            );
+
+            const foundUser = userResult.rows[0];
+
+            if (!foundUser) {
+                res.status(404).json({
+                    success: false,
+                    message: "user not found!!"
+                });
+                return;
+            }
+
+            if (!foundUser.is_active) {
+                res.status(403).json({
+                    success: false,
+                    message: "Forbidden!!"
+                });
+                return;
+            }
+
+            if (!isRole(foundUser.role) || (roles.length && !roles.includes(foundUser.role))) {
+                res.status(401).json({
+                    success: false,
+                    message: "Unauthorized access !!"
+                });
+                return;
+            }
+
+            req.user = {
+                ...decoded,
+                id: foundUser.id,
+                name: foundUser.name,
+                email: foundUser.email,
+                role: foundUser.role,
+            };
 
             next();
         } catch (error) {
-            next(error)
+            next(error);
         }
     };
-}
+};
+
 export default auth;

@@ -1,12 +1,14 @@
-import { NextFunction, request, Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import fs from "fs";
 
-// logger.txt file for monatoring;
-const logger = async (req: Request, res: Response, next: NextFunction) => {
+// logger.txt file for monitoring;
+const logger = (req: Request, _res: Response, next: NextFunction): void => {
     const log = `\nMethod: ${req.method} | URL: ${req.url} | Time: ${Date.now()}\n`;
 
-    fs.appendFile('logger.txt', log, (err) => {
-        console.log(err);
+    fs.appendFile("logger.txt", log, (err) => {
+        if (err) {
+            console.error(err);
+        }
     });
 
     next();

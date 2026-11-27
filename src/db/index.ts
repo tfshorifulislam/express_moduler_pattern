@@ -1,10 +1,11 @@
 import { Pool } from "pg";
-import config from "../config";
+import config from "../config/index.js";
 
+export const pool = new Pool(
+    config.connection_string ? { connectionString: config.connection_string } : {}
+);
 
-export const pool = new Pool({connectionString:config.connection_string});
-
-export const initDB = async () => {
+export const initDB = async (): Promise<void> => {
     try {
         await pool.query(`
             CREATE TABLE IF NOT EXISTS users(
@@ -32,9 +33,9 @@ export const initDB = async () => {
             created_at TIMESTAMP DEFAULT NOW(),
             updated_at TIMESTAMP DEFAULT NOW()
 
-            )`)
-            console.log("Connected to he database successfully");
+            )`);
+        console.log("Connected to the database successfully");
     } catch (error) {
-        console.log("Error connecting ot the database", error);
+        console.error("Error connecting to the database", error);
     }
-}
+};

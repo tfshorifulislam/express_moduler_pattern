@@ -1,12 +1,12 @@
-import app from "./app";
-import config from "./config";
-import { initDB } from "./db";
+import app from "./app.js";
+import config from "./config/index.js";
+import { initDB } from "./db/index.js";
 
-const main = async () => {
-    initDB();
+const main = async (): Promise<void> => {
+    await initDB();
     app.listen(config.port, () => {
-        console.log(`app listening on port ${config.port}`)
-    })
-}
+        console.log(`app listening on port ${config.port}`);
+    });
+};
 
-main();
+void main();

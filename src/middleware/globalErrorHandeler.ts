@@ -1,13 +1,24 @@
-import { NextFunction, Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 
-const globalErrorHandeler = (err: any , req: Request, res:Response, next: NextFunction) => {
+const globalErrorHandeler = (
+    err: unknown,
+    _req: Request,
+    res: Response,
+    next: NextFunction
+): void => {
+    if (res.headersSent) {
+        next(err);
+        return;
+    }
 
-    console.error(err.stack);
+    const stack = err instanceof Error ? err.stack : err;
+    const message = err instanceof Error ? err.message : "Internal Server Error";
+
+    console.error(stack);
     res.status(500).json({
         success: false,
-        message: err.message || "Internal Server Error",
+        message: message || "Internal Server Error",
     });
-    
 };
 
 export default globalErrorHandeler;
